@@ -1,20 +1,24 @@
+require "palavra"
+require "tabuleiro"
+
 function love.load(arg)
 
     if arg[#arg] == "-debug" then require("mobdebug").start() end -- Debug para ZeroBrane Studio IDE Utilize; Argumento - arg esta disponivel global.
 
-
+    jogo = tabuleiro.novo()
+    jogo:load()
 
 end
 
 function love.update(dt)
 
-
+    jogo:update(dt)
 
 end
 
 function love.draw()
 
-
+    jogo:draw()
 
 end
 
