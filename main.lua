@@ -4,13 +4,13 @@ require "menu"
 function love.load(arg)
 
     if arg[#arg] == "-debug" then require("mobdebug").start() end -- Debug para ZeroBrane Studio IDE Utilize; Argumento - arg esta disponivel global.
-
-    jogo = tabuleiro.novo()
+    tamanho = 128
+    jogo = tabuleiro.novo(tela.c /2 -tamanho *3 /2, tela.l /2 -tamanho *3 /2, tamanho)
     jogo:load()
     _menu = menu.new()
     _menu:load()
     opc = nil
-    --print
+    
 end
 
 function love.update(dt)
