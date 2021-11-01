@@ -9,6 +9,7 @@ function love.load(arg)
     jogo:load()
     _menu = menu.new()
     _menu:load()
+    opc = nil
 
 end
 
@@ -19,9 +20,12 @@ function love.update(dt)
 end
 
 function love.draw()
-    --jogo:draw()
-    _menu:draw()
-
+    if opc == nil then
+        opc = _menu:draw()
+    elseif opc == 1 then 
+        jogo:draw()
+    elseif opc == 2 then
+    end
 end
 
 function love.keypressed(tecla, cod, repeticao)

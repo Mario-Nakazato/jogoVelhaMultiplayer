@@ -18,14 +18,15 @@ local function new()
     end
     function menu:load()
         logo = love.graphics.newImage('Logo.png')
-
         table.insert(buttons, newButton(
             'Start Game', function()
                 print('start game')
+                return 1
             end))
         table.insert(buttons, newButton(
             'Load Game', function()
                 print('load game')
+                return 2
             end))
         table.insert(buttons, newButton(
             'Exit', function()
@@ -57,7 +58,7 @@ local function new()
             end
             button.now = love.mouse.isDown(1)
             if button.now and not button.last and houver then
-                button.fn()
+                return button.fn()
             end
 
             love.graphics.setColor(unpack(color))
