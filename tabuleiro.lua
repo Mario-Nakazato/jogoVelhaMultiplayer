@@ -14,10 +14,11 @@ local function novo(x, y, tamanho)
         x = x or 0,
         y = y or 0,
         tamanho = tamanho or 128,
+        jogada = 9,
         quadrado = {
-            [1] = {" ", " ", " "},
-            [2] = {" ", " ", " "},
-            [3] = {" ", " ", " "},
+            [1] = {"", "", ""},
+            [2] = {"", "", ""},
+            [3] = {"", "", ""},
         }
     }
 
@@ -42,39 +43,80 @@ local function novo(x, y, tamanho)
         end
     end
 
-    function tabuleiro:peca(i, j, p)
-        self.quadrado[i][j] = p or " "
+    function tabuleiro:jogar(i, j, p)
+        if i and j and self.jogada > 0 then
+            self.jogada = self.jogada -1
+            self.quadrado[i][j] = p or ""
+        end
+        print(self:checar(), self.jogada)
+    end
+
+    function tabuleiro:selecionar(x, y)
+
+        if self.x < x and self.x +self.tamanho > x then
+            if self.y < y and self.y +self.tamanho > y then
+                i, j = 1, 1
+            elseif self.y +self.tamanho < y and self.y +self.tamanho *2 > y then
+                i, j = 2, 1
+            elseif self.y +self.tamanho *2 < y and self.y +self.tamanho *3 > y then
+                i, j = 3, 1
+            end
+        elseif self.x +self.tamanho < x and self.x +self.tamanho *2 > x then
+            if self.y < y and self.y +self.tamanho > y then
+                i, j = 1, 2
+            elseif self.y +self.tamanho < y and self.y +self.tamanho *2 > y then
+                i, j = 2, 2
+            elseif self.y +self.tamanho *2 < y and self.y +self.tamanho *3 > y then
+                i, j = 3, 2
+            end
+        elseif self.x +self.tamanho *2 < x and self.x +self.tamanho *3 > x then
+            if self.y < y and self.y +self.tamanho > y then
+                i, j = 1, 3
+            elseif self.y +self.tamanho < y and self.y +self.tamanho *2 > y then
+                i, j = 2, 3
+            elseif self.y +self.tamanho *2 < y and self.y +self.tamanho *3 > y then
+                i, j = 3, 3
+            end
+        end
+
+        return i, j
+
+    end
+
+    function tabuleiro:checar()
+
+        venceu = nil
+
+        for i = 1, 3 do-- Horizontal Vertical
+            if self.quadrado[i][1] ~= "" and self.quadrado[i][1] == self.quadrado[i][2] and self.quadrado[i][1] == self.quadrado[i][3] then
+                venceu = self.quadrado[i][1]
+                break
+            elseif self.quadrado[1][i] ~= "" and self.quadrado[1][i] == self.quadrado[2][i] and self.quadrado[1][i] == self.quadrado[3][i] then
+                venceu = self.quadrado[1][i]
+                break
+            end
+        end
+
+        -- Diagonal
+        if self.quadrado[1][1] ~= "" and self.quadrado[1][1] == self.quadrado[2][2] and self.quadrado[1][1] == self.quadrado[3][3] then
+            venceu = self.quadrado[1][1];
+        elseif self.quadrado[3][1] ~= "" and self.quadrado[3][1] == self.quadrado[2][2] and self.quadrado[3][1] == self.quadrado[1][3] then
+            venceu = self.quadrado[3][1];
+        end
+
+        if venceu == nil and self.jogada == 0 then
+            return "Velha"
+        else
+            return venceu
+        end
+
     end
 
     function tabuleiro:mousepressed(x, y, botao, toque, repeticao)
         
-        p = botao == 1 and "X" or "O"
-
-        if self.x < x and self.x +self.tamanho > x then
-            if self.y < y and self.y +self.tamanho > y then
-                self:peca(1, 1, p)
-            elseif self.y +self.tamanho < y and self.y +self.tamanho *2 > y then
-                self:peca(2, 1, p)
-            elseif self.y +self.tamanho *2 < y and self.y +self.tamanho *3 > y then
-                self:peca(3, 1, p)
-            end
-        elseif self.x +self.tamanho < x and self.x +self.tamanho *2 > x then
-            if self.y < y and self.y +self.tamanho > y then
-                self:peca(1, 2, p)
-            elseif self.y +self.tamanho < y and self.y +self.tamanho *2 > y then
-                self:peca(2, 2, p)
-            elseif self.y +self.tamanho *2 < y and self.y +self.tamanho *3 > y then
-                self:peca(3, 2, p)
-            end
-        elseif self.x +self.tamanho *2 < x and self.x +self.tamanho *3 > x then
-            if self.y < y and self.y +self.tamanho > y then
-                self:peca(1, 3, p)
-            elseif self.y +self.tamanho < y and self.y +self.tamanho *2 > y then
-                self:peca(2, 3, p)
-            elseif self.y +self.tamanho *2 < y and self.y +self.tamanho *3 > y then
-                self:peca(3, 3, p)
-            end
-        end
+        p = botao == 1 and "X" or botao == 2 and "O" or ""
+        i, j = self:selecionar(x, y)
+        self:jogar(i, j, p)
 
     end
 

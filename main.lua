@@ -24,7 +24,9 @@ end
 
 function love.keypressed(tecla, cod, repeticao)
 
-
+    if tecla == "f5" then
+        love.load(arg)
+    end
 
 end
 
