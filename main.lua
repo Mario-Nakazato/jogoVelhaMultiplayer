@@ -11,7 +11,7 @@ function love.load(arg)
     
     _menu = menu.new()
     _menu:load()
-    opc = nil
+    opc = 1
 
 end
 
@@ -49,7 +49,7 @@ end
 function love.mousepressed(x, y, botao, toque, repeticao)
 
     if opc == 1 then 
-        jogo:mousepressed(x, y, botao, toque, repeticao)
+        venceu = jogo:mousepressed(x, y, botao, toque, repeticao)
     end
 
 end
