@@ -10,6 +10,7 @@ function love.load(arg)
     _menu = menu.new()
     _menu:load()
     opc = nil
+    --print
 end
 
 function love.update(dt)
