@@ -1,6 +1,7 @@
 require "palavra"
 require "tabuleiro"
 require "menu"
+
 function love.load(arg)
 
     if arg[#arg] == "-debug" then require("mobdebug").start() end -- Debug para ZeroBrane Studio IDE Utilize; Argumento - arg esta disponivel global.
@@ -10,7 +11,6 @@ function love.load(arg)
     _menu = menu.new()
     _menu:load()
     opc = nil
-    
 end
 
 function love.update(dt)
@@ -20,17 +20,21 @@ function love.update(dt)
 end
 
 function love.draw()
+
     if opc == nil then
         opc = _menu:draw()
     elseif opc == 1 then 
         jogo:draw()
     elseif opc == 2 then
     end
+
 end
 
 function love.keypressed(tecla, cod, repeticao)
 
-
+    if tecla == "f5" then
+        love.load(arg)
+    end
 
 end
 
@@ -42,7 +46,7 @@ end
 
 function love.mousepressed(x, y, botao, toque, repeticao)
 
-
+    jogo:mousepressed(x, y, botao, toque, repeticao)
 
 end
 
