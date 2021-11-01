@@ -1,6 +1,13 @@
+--[[
+
+    Menu
+
+    # .
+
+--]]
+
 local function new()
-    menu = {
-    }
+    local menu = {}
     BUTTON_HEIGHT = 64
     LOGO_HEIGHT = 648
     LOGO_WEIGHT = 337
@@ -14,17 +21,19 @@ local function new()
     end
     buttons = {}
     font = love.graphics.newFont(32)
+    
     function menu:update(dt)
     end
+    
     function menu:load()
         logo = love.graphics.newImage('Logo.png')
         table.insert(buttons, newButton(
-            'Start Game', function()
+            'Um jogador', function()
                 print('start game')
                 return 1
             end))
         table.insert(buttons, newButton(
-            'Load Game', function()
+            'Multiplayer', function()
                 print('load game')
                 return 2
             end))
@@ -91,8 +100,11 @@ local function new()
     end
     return menu
 end
+
 menu = {
     new = new
 }
+
 print('menu')
+
 return menu
