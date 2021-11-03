@@ -47,11 +47,10 @@ local function novo(x, y, tamanho, jogador)
         lgrafico.rectangle("line", self.x, self.y -self.tamanho, self.tamanho *3, self.tamanho)
         lgrafico.rectangle("line", self.x, self.y +self.tamanho *3, self.tamanho *3, self.tamanho)
         lgrafico.print("Mário X", lgrafico.newFont(32), self.x +self.tamanho /8, self.y -self.tamanho +self.tamanho /16)
-        --arrumar estar parte do texto e não poder mudar o q ja foi clicado
         if self.venceu ~= "Velha" then
             lgrafico.print("Vencedor: " ..tostring(self.venceu), lgrafico.newFont(32), self.x +self.tamanho /8, self.y -self.tamanho /2 +self.tamanho /16)
         elseif self.venceu == "Velha" then
-            lgrafico.print(tostring(self.venceu), lgrafico.newFont(32), self.x +self.tamanho /8, self.y -self.tamanho /2 +self.tamanho /16)
+            lgrafico.print(self.venceu, lgrafico.newFont(32), self.x +self.tamanho +self.tamanho /8, self.y -self.tamanho /2 +self.tamanho /16)
         end
         
         lgrafico.print("Bruno O", lgrafico.newFont(32), self.x +self.tamanho *2 -self.tamanho /8, self.y -self.tamanho +self.tamanho /16)
@@ -59,7 +58,7 @@ local function novo(x, y, tamanho, jogador)
     end
 
     function tabuleiro:jogar(i, j, p)
-        if i and j and self.jogada > 0 then
+        if i and j and self.jogada > 0 and self.quadrado[i][j] == "" then
             self.jogada = self.jogada -1
             self.quadrado[i][j] = p or self.jogador
             self.jogador = self.jogador == "X" and "O" or "X"
