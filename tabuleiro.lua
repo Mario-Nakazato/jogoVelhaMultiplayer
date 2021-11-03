@@ -47,7 +47,7 @@ local function novo(x, y, tamanho, jogador)
         lgrafico.rectangle("line", self.x, self.y -self.tamanho, self.tamanho *3, self.tamanho)
         lgrafico.rectangle("line", self.x, self.y +self.tamanho *3, self.tamanho *3, self.tamanho)
         lgrafico.print("Mário X", lgrafico.newFont(32), self.x +self.tamanho /8, self.y -self.tamanho +self.tamanho /16)
-        if self.venceu ~= "Velha" then
+        if self.venceu == "X" or self.venceu == "O" then
             lgrafico.print("Vencedor: " ..tostring(self.venceu), lgrafico.newFont(32), self.x +self.tamanho /8, self.y -self.tamanho /2 +self.tamanho /16)
         elseif self.venceu == "Velha" then
             lgrafico.print(self.venceu, lgrafico.newFont(32), self.x +self.tamanho +self.tamanho /8, self.y -self.tamanho /2 +self.tamanho /16)
