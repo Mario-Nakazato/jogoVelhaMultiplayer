@@ -9,28 +9,33 @@ function love.load(arg)
     tamanho = 128
     jogo = tabuleiro.novo(tela.c /2 -tamanho *3 /2, tela.l /2 -tamanho *3 /2, tamanho)
     
-    _menu = menu.new()
-    _menu:load()
-    opc = 1
-
+    _multi = menu.new()
+    _menu:load('main')
+    _multi:load('multiplayer')
+    opc = nil
+    mopc = nil
 end
 
 function love.update(dt)
-
     jogo:update(dt)
-
 end
 
 function love.draw()
-
     if opc == nil then
-        opc = _menu:draw()
-    elseif opc == 1 then 
-        jogo:draw()
-    elseif opc == 2 then
-    end
+        _menu:draw()
+    elseif opc == 1 then
 
+    elseif opc == 2 then
+        _multi:draw()
+        if mopc == 1 then
+        elseif mopc == 2 then
+        elseif mopc == 3 then
+            opc = nil
+            mopc = nil
+        end
+    end
 end
+
 
 function love.keypressed(tecla, cod, repeticao)
 
@@ -47,9 +52,12 @@ function love.keyreleased(tecla, cod)
 end
 
 function love.mousepressed(x, y, botao, toque, repeticao)
-
-    if opc == 1 then 
-        venceu = jogo:mousepressed(x, y, botao, toque, repeticao)
+    if opc == nil then 
+        opc = _menu:mousepressed(x, y, botao, toque, repeticao)
+    elseif opc == 1 then 
+        jogo:mousepressed(x, y, botao, toque, repeticao)
+    elseif opc == 2 then
+        mopc = _multi:mousepressed(x, y, botao, toque, repeticao)
     end
 
 end
