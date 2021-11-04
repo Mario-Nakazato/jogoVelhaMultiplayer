@@ -25,7 +25,7 @@ function love.draw()
     if opc == nil then
         _menu:draw()
     elseif opc == 1 then
-
+        jogo:draw()
     elseif opc == 2 then
         _multi:draw()
         if mopc == 1 then
