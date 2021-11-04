@@ -13,34 +13,30 @@ function love.load(arg)
     _multi = menu.new()
     _menu:load('main')
     _multi:load('multiplayer')
-
     opc = nil
-
+    mopc = nil
 end
 
 function love.update(dt)
-
     jogo:update(dt)
-
 end
 
 function love.draw()
     if opc == nil then
-        opc = _menu:draw()
-    elseif opc == 1 then 
-        jogo:draw()
+        _menu:draw()
+    elseif opc == 1 then
+
     elseif opc == 2 then
-        mopc=nil
-        mopc = _multi:draw()
+        _multi:draw()
         if mopc == 1 then
         elseif mopc == 2 then
         elseif mopc == 3 then
             opc = nil
-            love.timer.sleep(0.1)
+            mopc = nil
         end
     end
-
 end
+
 
 function love.keypressed(tecla, cod, repeticao)
 
@@ -57,8 +53,12 @@ function love.keyreleased(tecla, cod)
 end
 
 function love.mousepressed(x, y, botao, toque, repeticao)
-    if opc == 1 then 
+    if opc == nil then 
+        opc = _menu:mousepressed(x, y, botao, toque, repeticao)
+    elseif opc == 1 then 
         jogo:mousepressed(x, y, botao, toque, repeticao)
+    elseif opc == 2 then
+        mopc = _multi:mousepressed(x, y, botao, toque, repeticao)
     end
 
 end
