@@ -9,6 +9,7 @@ function love.load(arg)
     tamanho = 128
     jogo = tabuleiro.novo(tela.c /2 -tamanho *3 /2, tela.l /2 -tamanho *3 /2, tamanho)
     
+    _menu = menu:new()
     _multi = menu.new()
     _menu:load('main')
     _multi:load('multiplayer')
