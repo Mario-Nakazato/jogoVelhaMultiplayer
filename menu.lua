@@ -4,7 +4,9 @@
 
     # .
 
---]] local function new()
+--]]
+
+local function new()
     local menu = {}
     BUTTON_HEIGHT = 64
     LOGO_HEIGHT = 648
