@@ -4,11 +4,13 @@ require "menu"
 
 function love.load(arg)
 
-    if arg[#arg] == "-debug" then require("mobdebug").start() end -- Debug para ZeroBrane Studio IDE Utilize; Argumento - arg esta disponivel global.
-    
+    if arg[#arg] == "-debug" then
+        require("mobdebug").start()
+    end -- Debug para ZeroBrane Studio IDE Utilize; Argumento - arg esta disponivel global.
+
     tamanho = 128
-    jogo = tabuleiro.novo(tela.c /2 -tamanho *3 /2, tela.l /2 -tamanho *3 /2, tamanho)
-    
+    jogo = tabuleiro.novo(tela.c / 2 - tamanho * 3 / 2, tela.l / 2 - tamanho * 3 / 2, tamanho)
+
     _menu = menu:new()
     _multi = menu.new()
     _menu:load('main')
@@ -32,37 +34,42 @@ function love.draw()
             local enet = require "enet"
             local host = enet.host_create()
             local server = host:connect("localhost:6789")
-            while true do
-            local event = host:service(100)
-            while event do
-                if event.type == "receive" then
-                print("Got message: ", event.data, event.peer)
-                event.peer:send( "ping" )
-                elseif event.type == "connect" then
-                print(event.peer, "connected.")
-                event.peer:send( "ping" )
-                elseif event.type == "disconnect" then
-                print(event.peer, "disconnected.")
+            while mopc == 1 do
+                local event = host:service(0)
+
+                while event do
+                    if event.type == "receive" then
+                        print("Got message: ", event.data, event.peer)
+                        event.peer:send("ping")
+                    elseif event.type == "connect" then
+                        print(event.peer, "connected.")
+                        event.peer:send("ping")
+                    elseif event.type == "disconnect" then
+                        print(event.peer, "disconnected.")
+                        mopc = nil
+                        opc = nil
+                    end
+                    event = host:service()
                 end
-                event = host:service()
-            end
             end
         elseif mopc == 2 then
             local enet = require "enet"
             local host = enet.host_create("localhost:6789")
-            while true do
-            local event = host:service(100)
-            while event do
-                if event.type == "receive" then
-                print("Got message: ", event.data, event.peer)
-                event.peer:send( "pong" )
-                elseif event.type == "connect" then
-                print(event.peer, "connected.")
-                elseif event.type == "disconnect" then
-                print(event.peer, "disconnected.")
+            while mopc == 2 do
+                local event = host:service(0)
+                while event do
+                    if event.type == "receive" then
+                        print("Got message: ", event.data, event.peer)
+                        event.peer:send("pong")
+                    elseif event.type == "connect" then
+                        print(event.peer, "connected.")
+                    elseif event.type == "disconnect" then
+                        print(event.peer, "disconnected.")
+                        mopc = nil
+                        opc = nil
+                    end
+                    event = host:service()
                 end
-                event = host:service()
-            end
             end
         elseif mopc == 3 then
             opc = nil
@@ -70,7 +77,6 @@ function love.draw()
         end
     end
 end
-
 
 function love.keypressed(tecla, cod, repeticao)
 
@@ -82,14 +88,12 @@ end
 
 function love.keyreleased(tecla, cod)
 
-
-
 end
 
 function love.mousepressed(x, y, botao, toque, repeticao)
-    if opc == nil then 
+    if opc == nil then
         opc = _menu:mousepressed(x, y, botao, toque, repeticao)
-    elseif opc == 1 then 
+    elseif opc == 1 then
         jogo:mousepressed(x, y, botao, toque, repeticao)
     elseif opc == 2 then
         mopc = _multi:mousepressed(x, y, botao, toque, repeticao)
@@ -99,43 +103,29 @@ end
 
 function love.mousereleased(x, y, botao, toque, repeticao)
 
-
-
 end
 
 function love.mousemoved(x, y, dx, dy, toque)
-
-
 
 end
 
 function love.wheelmoved(x, y)
 
-
-
 end
 
 function love.mousefocus(foco)
-
-
 
 end
 
 function love.resize(c, l)
 
-
-
 end
 
 function love.focus(foco)
 
-
-
 end
 
 function love.quit()
-
-
 
 end
 --[[
