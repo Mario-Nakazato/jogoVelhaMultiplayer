@@ -73,33 +73,15 @@ local function novo(x, y, tamanho, jogador)
 
     function tabuleiro:selecionar(x, y)
 
-        if self.x < x and self.x +self.tamanho > x then
-            if self.y < y and self.y +self.tamanho > y then
-                i, j = 1, 1
-            elseif self.y +self.tamanho < y and self.y +self.tamanho *2 > y then
-                i, j = 2, 1
-            elseif self.y +self.tamanho *2 < y and self.y +self.tamanho *3 > y then
-                i, j = 3, 1
-            end
-        elseif self.x +self.tamanho < x and self.x +self.tamanho *2 > x then
-            if self.y < y and self.y +self.tamanho > y then
-                i, j = 1, 2
-            elseif self.y +self.tamanho < y and self.y +self.tamanho *2 > y then
-                i, j = 2, 2
-            elseif self.y +self.tamanho *2 < y and self.y +self.tamanho *3 > y then
-                i, j = 3, 2
-            end
-        elseif self.x +self.tamanho *2 < x and self.x +self.tamanho *3 > x then
-            if self.y < y and self.y +self.tamanho > y then
-                i, j = 1, 3
-            elseif self.y +self.tamanho < y and self.y +self.tamanho *2 > y then
-                i, j = 2, 3
-            elseif self.y +self.tamanho *2 < y and self.y +self.tamanho *3 > y then
-                i, j = 3, 3
+        for j = 1, 3 do
+            for i = 1, 3 do
+                if self.x +self.tamanho *(j -1) < x and self.x +self.tamanho *j > x then
+                    if self.y +self.tamanho *(i -1) < y and self.y +self.tamanho *i > y then
+                        return i, j
+                    end
+                end
             end
         end
-
-        return i, j
 
     end
 
@@ -142,7 +124,7 @@ local function novo(x, y, tamanho, jogador)
             --p = botao == 1 and "X" or botao == 2 and "O" or ""
             i, j = self:selecionar(x, y)
         end
-        
+
         return self:jogar(i, j, p)
 
     end
