@@ -43,17 +43,17 @@ function love.draw()
         if mopc == 1 then
             local enet = require "enet"
             local host = enet.host_create()
-            local server = host:connect("localhost:25565")
+            local server = host:connect("26.203.221.212:25565")
             server:timeout(1, 5000, 5000)
             while mopc == 1 do
                 local event = host:service(100)
                 while event do
                     if event.type == "receive" then
                         print("Got message: ", event.data, event.peer)
-                        event.peer:send(gameObject)
+                        event.peer:send("ping")
                     elseif event.type == "connect" then
                         print(event.peer, "connected.")
-                        event.peer:send(gameObject)
+                        event.peer:send("ping")
                     elseif event.type == "disconnect" then
                         print(event.peer, "disconnected.")
                         mopc = nil
@@ -69,13 +69,13 @@ function love.draw()
                 local event = host:service(0)
                 while event do
                     if event.type == "receive" then
-                        --print("Got message: ", event.data, event.peer)
-                        go = event.data
-                        gameObject={tab,actPlayer,num1,num2}
-                        gameObject.tab,gameObject.actPlayer,gameObject.num1,gameObject.num2 = love.data.unpack("ssnn", go, 1)
-                        for k, v in pairs(gameObject) do
-                            print(v)
-                        end
+                        print("Got message: ", event.data, event.peer)
+                        --go = event.data
+                        --gameObject={tab,actPlayer,num1,num2}
+                        --gameObject.tab,gameObject.actPlayer,gameObject.num1,gameObject.num2 = love.data.unpack("ssnn", go, 1)
+                        --for k, v in pairs(gameObject) do
+                        --    print(v)
+                        --end
                         event.peer:send("pong")
                     elseif event.type == "connect" then
                         print(event.peer, "connected.")
