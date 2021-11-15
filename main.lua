@@ -1,12 +1,14 @@
 require "palavra"
 require "tabuleiro"
 require "menu"
+
 gameObject = {
     tab = "Ola MUNDO",
     actPlayer = 'x',
-    num1= 512,
-    num2 = 420+69
+    num1 = 512,
+    num2 = 420 + 69
 }
+
 function love.load(arg)
 
     if arg[#arg] == "-debug" then
@@ -22,11 +24,9 @@ function love.load(arg)
     _multi:load('multiplayer')
     opc = nil
     mopc = nil
-    for k, v in pairs(gameObject) do
-       -- print(v)
-    end
-    --print(gameObject.num2)
-    gameObject = love.data.pack("string", "ssnn",gameObject.tab,gameObject.actPlayer,gameObject.num1,gameObject.num2)
+
+    gameObject = love.data
+                     .pack("string", "ssnn", gameObject.tab, gameObject.actPlayer, gameObject.num1, gameObject.num2)
 end
 
 function love.update(dt)
@@ -43,17 +43,26 @@ function love.draw()
         if mopc == 1 then
             local enet = require "enet"
             local host = enet.host_create()
-            local server = host:connect("26.203.221.212:25565")
+            local server = host:connect("localhost:25565")
             server:timeout(1, 5000, 5000)
             while mopc == 1 do
                 local event = host:service(100)
                 while event do
                     if event.type == "receive" then
-                        print("Got message: ", event.data, event.peer)
-                        event.peer:send("ping")
+                        --print("Got message: ", event.data, event.peer)
+                        if event.data ~= "" then
+                            go = event.data
+                            gameObject = {tab, actPlayer, num1, num2}
+                            gameObject.tab, gameObject.actPlayer, gameObject.num1, gameObject.num2 = love.data.unpack(
+                                "ssnn", go, 1)
+                            for k, v in pairs(gameObject) do
+                                print(v)
+                            end
+                        end
+                        -- DEVOLVE O JOGO
+                        event.peer:send(go)
                     elseif event.type == "connect" then
                         print(event.peer, "connected.")
-                        event.peer:send("ping")
                     elseif event.type == "disconnect" then
                         print(event.peer, "disconnected.")
                         mopc = nil
@@ -64,21 +73,30 @@ function love.draw()
             end
         elseif mopc == 2 then
             local enet = require "enet"
-            local host = enet.host_create("localhost:25565")
+            local host = enet.host_create("*:25565")
             while mopc == 2 do
                 local event = host:service(0)
                 while event do
                     if event.type == "receive" then
-                        print("Got message: ", event.data, event.peer)
-                        --go = event.data
-                        --gameObject={tab,actPlayer,num1,num2}
-                        --gameObject.tab,gameObject.actPlayer,gameObject.num1,gameObject.num2 = love.data.unpack("ssnn", go, 1)
-                        --for k, v in pairs(gameObject) do
-                        --    print(v)
-                        --end
-                        event.peer:send("pong")
+                        -- print("Got message: ", event.data, event.peer)
+                        if event.data ~= "" then
+                            go = event.data
+                            gameObject = {tab, actPlayer, num1, num2}
+                            gameObject.tab, gameObject.actPlayer, gameObject.num1, gameObject.num2 = love.data.unpack(
+                                "ssnn", go, 1)
+                            for k, v in pairs(gameObject) do
+                                print(v)
+                            end
+                        end
+
+                        -- DEVOLVE O JOGO
+                        event.peer:send(go)
                     elseif event.type == "connect" then
                         print(event.peer, "connected.")
+
+                        -- COMECA O JOGO
+                        event.peer:send(gameObject)
+
                     elseif event.type == "disconnect" then
                         print(event.peer, "disconnected.")
                         mopc = nil
