@@ -22,7 +22,7 @@ function love.load(arg)
 
     ip = caixaTexto.novo()
     ip.comp, ip.larg = 640, 64
-    ip.x, ip.y = tela.c / 2 - ip.comp / 2, jogo.y -- tela.l /2 -ip.larg /2
+    ip.x, ip.y = tela.c / 2 - ip.comp / 2, jogo.y * 1.75 -- tela.l /2 -ip.larg /2
     ip.fonte = lgrafico.newFont(ip.larg * 0.8)
 
     _menu = menu:new()
@@ -49,38 +49,47 @@ function love.draw()
     elseif opc == 1 then
         jogo:draw()
     elseif opc == 2 then
-        _multi:draw()
-        if mopc == 1 then
-            local enet = require "enet"
-            local host = enet.host_create()
-            local server = host:connect("localhost:25565")
-            server:timeout(1, 5000, 5000)
-            while mopc == 1 do
-                local event = host:service(100)
-                while event do
-                    if event.type == "receive" then
-                        -- RECEBE O JOGO
-                        gameObject = goUnPack(event.data)
+        if mopc == nil then
+            _multi:draw()
+        elseif mopc == 1 then
+            if hopc == nil then
+                _host:draw()
+                ip:draw()
+            elseif hopc == 1 then
+                local enet = require "enet"
+                local host = enet.host_create()
+                local server = host:connect(ip.texto)
+                server:timeout(1, 5000, 5000)
+                while mopc == 1 do
+                    local event = host:service(100)
+                    while event do
+                        if event.type == "receive" then
+                            -- RECEBE O JOGO
+                            gameObject = goUnPack(event.data)
 
-                        -- PRINT
-                        goPrint(gameObject)
+                            -- PRINT
+                            goPrint(gameObject)
 
-                        -- ALTERA O JOGO
-                        gameObject.num1 = gameObject.num1 + 1
-                        gameObject.num2 = gameObject.num2 + 1
+                            -- ALTERA O JOGO
+                            gameObject.num1 = gameObject.num1 + 1
+                            gameObject.num2 = gameObject.num2 + 1
 
-                        -- DEVOLVE O JOGO
-                        event.peer:send(goPack(gameObject))
+                            -- DEVOLVE O JOGO
+                            event.peer:send(goPack(gameObject))
 
-                    elseif event.type == "connect" then
-                        print(event.peer, "connected.")
-                    elseif event.type == "disconnect" then
-                        print(event.peer, "disconnected.")
-                        mopc = nil
-                        opc = nil
+                        elseif event.type == "connect" then
+                            print(event.peer, "connected.")
+                        elseif event.type == "disconnect" then
+                            print(event.peer, "disconnected.")
+                            mopc = nil
+                            opc = nil
+                        end
+                        event = host:service(100)
                     end
-                    event = host:service(100)
                 end
+            elseif hopc == 2 then
+                mopc = nil
+                hopc = nil
             end
         elseif mopc == 2 then
             local enet = require "enet"
@@ -127,7 +136,7 @@ function goPack(go)
 end
 function goUnPack(data)
     local go = {tab, actPlayer, num1, num2}
-    go.tab, go.actPlayer, go.num1, go.num2 = love.data.unpack("ssnn", go, 1)
+    go.tab, go.actPlayer, go.num1, go.num2 = love.data.unpack("ssnn", data, 1)
     return go
 end
 function goPrint(go)
@@ -165,13 +174,10 @@ function love.mousepressed(x, y, botao, toque, repeticao)
         if mopc == nil then
             mopc = _multi:mousepressed(x, y, botao, toque, repeticao)
         elseif mopc == 1 then
-        elseif mopc == 2 then
             if hopc == nil then
                 ip:mousepressed(x, y, botao, toque, repeticao)
                 hopc = _host:mousepressed(x, y, botao, toque, repeticao)
             elseif hopc == 1 then
-            elseif hopc == 2 then
-
             end
         end
     end

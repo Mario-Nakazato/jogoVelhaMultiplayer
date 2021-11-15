@@ -56,8 +56,8 @@ local function new()
                 return 3
             end))
         elseif any == "host" then
-            table.insert(buttons, newButton('Hospedar', function()
-                print('Hospedar')
+            table.insert(buttons, newButton('Conectar', function()
+                print('Conectar')
                 return 1
             end))
             table.insert(buttons, newButton('Voltar', function()
