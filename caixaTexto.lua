@@ -54,7 +54,7 @@ local function novo(x, y, comp, larg, espessura)
 
         lgrafico.setLineWidth(self.espessura)
         lgrafico.rectangle("line", self.x, self.y, self.comp, self.larg)
-        lgrafico.print(self.texto..self.cursor, self.fonte, self.x, self.y)
+        lgrafico.print(self.texto ..self.cursor, self.fonte, self.x, self.y)
         
     end
 

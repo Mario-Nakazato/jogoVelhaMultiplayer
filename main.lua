@@ -14,7 +14,7 @@ function love.load(arg)
     jogo.x, jogo.y = tela.c / 2 - jogo.tamanho * 3 / 2, tela.l / 2 - jogo.tamanho * 3 / 2
 
     ip = caixaTexto.novo()
-    ip.comp, ip.larg = 128 * 3, 64
+    ip.comp, ip.larg = 640, 64
     ip.x, ip.y = tela.c / 2 - ip.comp / 2, jogo.y -- tela.l /2 -ip.larg /2
     ip.fonte = lgrafico.newFont(ip.larg * 0.8)
 
