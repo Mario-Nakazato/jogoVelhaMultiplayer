@@ -3,6 +3,13 @@ require "tabuleiro"
 require "menu"
 require "caixaTexto"
 
+gameObject = {
+    tab = "Ola MUNDO",
+    actPlayer = 'x',
+    num1 = 512,
+    num2 = 420 + 69
+}
+
 function love.load(arg)
 
     if arg[#arg] == "-debug" then
@@ -27,6 +34,9 @@ function love.load(arg)
     opc = nil -- nil
     mopc = nil -- nil
     hopc = nil
+
+    gameObject = love.data.pack("string", "ssnn", gameObject.tab, gameObject.actPlayer, gameObject.num1, gameObject.num2)
+
 end
 
 function love.update(dt)
@@ -42,24 +52,77 @@ function love.draw()
     elseif opc == 1 then
         jogo:draw()
     elseif opc == 2 then
-        if mopc == nil then
-            _multi:draw()
-        elseif mopc == 1 then
+        _multi:draw()
+        if mopc == 1 then
+            local enet = require "enet"
+            local host = enet.host_create()
+            local server = host:connect("localhost:25565")
+            server:timeout(1, 5000, 5000)
+            while mopc == 1 do
+                local event = host:service(100)
+                while event do
+                    if event.type == "receive" then
+                        --print("Got message: ", event.data, event.peer)
+                        if event.data ~= "" then
+                            go = event.data
+                            gameObject = {tab, actPlayer, num1, num2}
+                            gameObject.tab, gameObject.actPlayer, gameObject.num1, gameObject.num2 = love.data.unpack(
+                                "ssnn", go, 1)
+                            for k, v in pairs(gameObject) do
+                                print(v)
+                            end
+                        end
+                        -- DEVOLVE O JOGO
+                        event.peer:send(go)
+                    elseif event.type == "connect" then
+                        print(event.peer, "connected.")
+                    elseif event.type == "disconnect" then
+                        print(event.peer, "disconnected.")
+                        mopc = nil
+                        opc = nil
+                    end
+                    event = host:service(100)
+                end
+            end
         elseif mopc == 2 then
-            if hopc == nil then
-                _host:draw()
-                ip:draw()
-            elseif hopc == 1 then
-            elseif hopc == 2 then
-                mopc = nil
-                hopc = nil
+            local enet = require "enet"
+            local host = enet.host_create("*:25565")
+            while mopc == 2 do
+                local event = host:service(0)
+                while event do
+                    if event.type == "receive" then
+                        -- print("Got message: ", event.data, event.peer)
+                        if event.data ~= "" then
+                            go = event.data
+                            gameObject = {tab, actPlayer, num1, num2}
+                            gameObject.tab, gameObject.actPlayer, gameObject.num1, gameObject.num2 = love.data.unpack(
+                                "ssnn", go, 1)
+                            for k, v in pairs(gameObject) do
+                                print(v)
+                            end
+                        end
+
+                        -- DEVOLVE O JOGO
+                        event.peer:send(go)
+                    elseif event.type == "connect" then
+                        print(event.peer, "connected.")
+
+                        -- COMECA O JOGO
+                        event.peer:send(gameObject)
+
+                    elseif event.type == "disconnect" then
+                        print(event.peer, "disconnected.")
+                        mopc = nil
+                        opc = nil
+                    end
+                    event = host:service()
+                end
             end
         elseif mopc == 3 then
             opc = nil
             mopc = nil
         end
     end
-
 end
 
 function love.keypressed(tecla, cod, repeticao)
