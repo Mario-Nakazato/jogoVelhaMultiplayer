@@ -31,12 +31,9 @@ function love.load(arg)
     _menu:load('main')
     _multi:load('multiplayer')
     _host:load('host')
-    opc = nil -- nil
-    mopc = nil -- nil
+    opc = nil
+    mopc = nil
     hopc = nil
-
-    gameObject = love.data.pack("string", "ssnn", gameObject.tab, gameObject.actPlayer, gameObject.num1, gameObject.num2)
-
 end
 
 function love.update(dt)
@@ -62,18 +59,19 @@ function love.draw()
                 local event = host:service(100)
                 while event do
                     if event.type == "receive" then
-                        --print("Got message: ", event.data, event.peer)
-                        if event.data ~= "" then
-                            go = event.data
-                            gameObject = {tab, actPlayer, num1, num2}
-                            gameObject.tab, gameObject.actPlayer, gameObject.num1, gameObject.num2 = love.data.unpack(
-                                "ssnn", go, 1)
-                            for k, v in pairs(gameObject) do
-                                print(v)
-                            end
-                        end
+                        -- RECEBE O JOGO
+                        gameObject = goUnPack(event.data)
+
+                        -- PRINT
+                        goPrint(gameObject)
+
+                        -- ALTERA O JOGO
+                        gameObject.num1 = gameObject.num1 + 1
+                        gameObject.num2 = gameObject.num2 + 1
+
                         -- DEVOLVE O JOGO
-                        event.peer:send(go)
+                        event.peer:send(goPack(gameObject))
+
                     elseif event.type == "connect" then
                         print(event.peer, "connected.")
                     elseif event.type == "disconnect" then
@@ -91,24 +89,22 @@ function love.draw()
                 local event = host:service(0)
                 while event do
                     if event.type == "receive" then
-                        -- print("Got message: ", event.data, event.peer)
-                        if event.data ~= "" then
-                            go = event.data
-                            gameObject = {tab, actPlayer, num1, num2}
-                            gameObject.tab, gameObject.actPlayer, gameObject.num1, gameObject.num2 = love.data.unpack(
-                                "ssnn", go, 1)
-                            for k, v in pairs(gameObject) do
-                                print(v)
-                            end
-                        end
+                        -- RECEBE O JOGO
+                        gameObject = goUnPack(event.data)
+                        -- PRINT
+                        goPrint(gameObject)
+
+                        -- ALTERA O JOGO
+                        gameObject.num1 = gameObject.num1 + 1
+                        gameObject.num2 = gameObject.num2 + 1
 
                         -- DEVOLVE O JOGO
-                        event.peer:send(go)
+                        event.peer:send(goPack(gameObject))
+
                     elseif event.type == "connect" then
                         print(event.peer, "connected.")
-
                         -- COMECA O JOGO
-                        event.peer:send(gameObject)
+                        event.peer:send(goPack(gameObject))
 
                     elseif event.type == "disconnect" then
                         print(event.peer, "disconnected.")
@@ -124,7 +120,21 @@ function love.draw()
         end
     end
 end
-
+function goPack(go)
+    local data = love.data
+                     .pack("string", "ssnn", gameObject.tab, gameObject.actPlayer, gameObject.num1, gameObject.num2)
+    return data
+end
+function goUnPack(data)
+    local go = {tab, actPlayer, num1, num2}
+    go.tab, go.actPlayer, go.num1, go.num2 = love.data.unpack("ssnn", go, 1)
+    return go
+end
+function goPrint(go)
+    for k, v in pairs(go) do
+        print(v)
+    end
+end
 function love.keypressed(tecla, cod, repeticao)
 
     if tecla == "f5" then
@@ -165,7 +175,6 @@ function love.mousepressed(x, y, botao, toque, repeticao)
             end
         end
     end
-
 end
 
 function love.mousereleased(x, y, botao, toque, repeticao)
