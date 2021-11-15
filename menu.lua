@@ -11,6 +11,7 @@ local function new()
     BUTTON_HEIGHT = 64
     LOGO_HEIGHT = 648
     LOGO_WEIGHT = 337
+    local TYPE = nil
     function newButton(text, fn)
         return {
             text = text,
@@ -28,6 +29,7 @@ local function new()
     function menu:load(any)
         logo = love.graphics.newImage('Logo.png')
         button_location = {}
+        TYPE = any
         if any == 'main' then
             table.insert(buttons, newButton('Um jogador', function()
                 print('start game')
@@ -52,6 +54,15 @@ local function new()
             table.insert(buttons, newButton('Voltar', function()
                 print('Voltar')
                 return 3
+            end))
+        elseif any == "host" then
+            table.insert(buttons, newButton('Hospedar', function()
+                print('Hospedar')
+                return 1
+            end))
+            table.insert(buttons, newButton('Voltar', function()
+                print('Voltar')
+                return 2
             end))
         end
     end
@@ -82,7 +93,9 @@ local function new()
             button.last = button.now
             bx = (ww / 2) - (button_width / 2)
             by = (wh / 2) - (total_height / 2) + cursor_y
-
+            if TYPE=="host" then
+                by = by + 50
+            end
             color = {0.2, 0, 0.5, 1}
             mx, my = love.mouse.getPosition()
 
