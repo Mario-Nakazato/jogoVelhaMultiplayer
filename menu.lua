@@ -55,7 +55,7 @@ local function new()
                 print('Voltar')
                 return 3
             end))
-        elseif any == "host" then
+        elseif any == "cliente" then
             table.insert(buttons, newButton('Conectar', function()
                 print('Conectar')
                 return 1
@@ -93,7 +93,7 @@ local function new()
             button.last = button.now
             bx = (ww / 2) - (button_width / 2)
             by = (wh / 2) - (total_height / 2) + cursor_y
-            if TYPE=="host" then
+            if TYPE=="cliente" then
                 by = by + 50
             end
             color = {0.2, 0, 0.5, 1}

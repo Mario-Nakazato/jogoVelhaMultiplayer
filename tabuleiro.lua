@@ -7,7 +7,7 @@
 --]]
 
 require "palavra"
-
+--nnnsnssssssssss
 local function novo(x, y, tamanho, jogador)
 
     local tabuleiro = {
@@ -16,7 +16,7 @@ local function novo(x, y, tamanho, jogador)
         tamanho = tamanho or 128,
         jogador = jogador or "X",
         jogada = 9,
-        venceu = nil,
+        venceu = "",
         quadrado = {
             [1] = {"", "", ""},
             [2] = {"", "", ""},
@@ -106,11 +106,11 @@ local function novo(x, y, tamanho, jogador)
             self.venceu = self.quadrado[3][1];
         end
 
-        if self.venceu then
+        if self.venceu ~= "" then
             self.jogada = 0
         end
 
-        if self.venceu == nil and self.jogada == 0 then
+        if self.venceu == "" and self.jogada == 0 then
             self.venceu = "Velha"
         end
 

@@ -2,13 +2,7 @@ require "palavra"
 require "tabuleiro"
 require "menu"
 require "caixaTexto"
-
-gameObject = {
-    tab = "Ola MUNDO",
-    actPlayer = 'x',
-    num1 = 512,
-    num2 = 420 + 69
-}
+enet = require "enet"
 
 function love.load(arg)
 
@@ -27,13 +21,23 @@ function love.load(arg)
 
     _menu = menu:new()
     _multi = menu:new()
-    _host = menu:new()
+    _cliente = menu:new()
     _menu:load('main')
     _multi:load('multiplayer')
-    _host:load('host')
+    _cliente:load('cliente')
     opc = nil
     mopc = nil
     hopc = nil
+    connected = true
+    isCurrentPlayer = true
+    --[[_jogo = goUnPack(goPack(jogo))
+    print(_jogo.x, _jogo.y, _jogo.tamanho, _jogo.jogador, _jogo.jogada, _jogo.venceu, _jogo.quadrado[1][1],
+        _jogo.quadrado[1][2], _jogo.quadrado[1][3], _jogo.quadrado[2][1], _jogo.quadrado[2][2], _jogo.quadrado[2][3],
+        _jogo.quadrado[3][1], _jogo.quadrado[3][2], _jogo.quadrado[3][3])
+
+    if jogo == x then
+        print("passou")
+    end]]
 end
 
 function love.update(dt)
@@ -53,32 +57,28 @@ function love.draw()
             _multi:draw()
         elseif mopc == 1 then
             if hopc == nil then
-                _host:draw()
+                _cliente:draw()
                 ip:draw()
             elseif hopc == 1 then
-                local enet = require "enet"
-                local host = enet.host_create()
-                local server = host:connect(ip.texto)
+                host = enet.host_create()
+                server = host:connect(ip.texto)
                 server:timeout(1, 5000, 5000)
-                while mopc == 1 do
-                    local event = host:service(100)
+                if connected then
+                    jogo:draw()
+                end
+                while mopc == 1 and (connected==false or isCurrentPlayer == false) do
+                    event = host:service(100)
                     while event do
                         if event.type == "receive" then
                             -- RECEBE O JOGO
-                            gameObject = goUnPack(event.data)
-
-                            -- PRINT
-                            goPrint(gameObject)
+                            jogo = goUnPack(event.data)
 
                             -- ALTERA O JOGO
-                            gameObject.num1 = gameObject.num1 + 1
-                            gameObject.num2 = gameObject.num2 + 1
-
-                            -- DEVOLVE O JOGO
-                            event.peer:send(goPack(gameObject))
+                           isCurrentPlayer = true
 
                         elseif event.type == "connect" then
                             print(event.peer, "connected.")
+                            connected = true
                         elseif event.type == "disconnect" then
                             print(event.peer, "disconnected.")
                             mopc = nil
@@ -92,28 +92,25 @@ function love.draw()
                 hopc = nil
             end
         elseif mopc == 2 then
-            local enet = require "enet"
-            local host = enet.host_create("*:25565")
-            while mopc == 2 do
-                local event = host:service(0)
+            host = enet.host_create("*:25565")
+            if connected == true then
+                jogo:draw()
+            end
+            while mopc == 2 and (connected == false or isCurrentPlayer == false) do
+                event = host:service(0)
                 while event do
                     if event.type == "receive" then
                         -- RECEBE O JOGO
-                        gameObject = goUnPack(event.data)
-                        -- PRINT
-                        goPrint(gameObject)
+                        jogo = goUnPack(event.data)
 
                         -- ALTERA O JOGO
-                        gameObject.num1 = gameObject.num1 + 1
-                        gameObject.num2 = gameObject.num2 + 1
-
-                        -- DEVOLVE O JOGO
-                        event.peer:send(goPack(gameObject))
+                        isCurrentPlayer = true
 
                     elseif event.type == "connect" then
                         print(event.peer, "connected.")
                         -- COMECA O JOGO
-                        event.peer:send(goPack(gameObject))
+                        isCurrentPlayer = true
+                        connected = true
 
                     elseif event.type == "disconnect" then
                         print(event.peer, "disconnected.")
@@ -129,23 +126,27 @@ function love.draw()
         end
     end
 end
+
 function goPack(go)
-    local data = love.data
-                     .pack("string", "ssnn", gameObject.tab, gameObject.actPlayer, gameObject.num1, gameObject.num2)
+    local data = love.data.pack("string", "nnnsnssssssssss", go.x, go.y, go.tamanho, go.jogador, go.jogada, go.venceu,
+        go.quadrado[1][1], go.quadrado[1][2], go.quadrado[1][3], go.quadrado[2][1], go.quadrado[2][2],
+        go.quadrado[2][3], go.quadrado[3][1], go.quadrado[3][2], go.quadrado[3][3])
     return data
 end
+
 function goUnPack(data)
-    local go = {tab, actPlayer, num1, num2}
-    go.tab, go.actPlayer, go.num1, go.num2 = love.data.unpack("ssnn", data, 1)
+    local go = tabuleiro.novo()
+    go.x, go.y, go.tamanho, go.jogador, go.jogada, go.venceu, go.quadrado[1][1], go.quadrado[1][2], go.quadrado[1][3], go.quadrado[2][1], go.quadrado[2][2], go.quadrado[2][3], go.quadrado[3][1], go.quadrado[3][2], go.quadrado[3][3] =
+        love.data.unpack("nnnsnssssssssss", data, 1)
+
     return go
 end
-function goPrint(go)
-    for k, v in pairs(go) do
-        print(v)
-    end
-end
-function love.keypressed(tecla, cod, repeticao)
 
+function love.keypressed(tecla, cod, repeticao)
+    -- goPrint(jogo)
+    print(jogo.x, jogo.y, jogo.tamanho, jogo.jogador, jogo.jogada, jogo.venceu, jogo.quadrado[1][1],
+        jogo.quadrado[1][2], jogo.quadrado[1][3], jogo.quadrado[2][1], jogo.quadrado[2][2], jogo.quadrado[2][3],
+        jogo.quadrado[3][1], jogo.quadrado[3][2], jogo.quadrado[3][3])
     if tecla == "f5" then
         love.load(arg)
     end
@@ -169,16 +170,22 @@ function love.mousepressed(x, y, botao, toque, repeticao)
     if opc == nil then
         opc = _menu:mousepressed(x, y, botao, toque, repeticao)
     elseif opc == 1 then
+        -- Adcionar retorno de se a jogada aconteceu
         jogo:mousepressed(x, y, botao, toque, repeticao)
+        -- envia o jogo?
+
     elseif opc == 2 then
         if mopc == nil then
             mopc = _multi:mousepressed(x, y, botao, toque, repeticao)
         elseif mopc == 1 then
             if hopc == nil then
                 ip:mousepressed(x, y, botao, toque, repeticao)
-                hopc = _host:mousepressed(x, y, botao, toque, repeticao)
+                hopc = _cliente:mousepressed(x, y, botao, toque, repeticao)
             elseif hopc == 1 then
+
             end
+        elseif mopc == 2 and connected and isCurrentPlayer then
+            jogo:mousepressed(x, y, botao, toque, repeticao)
         end
     end
 end
