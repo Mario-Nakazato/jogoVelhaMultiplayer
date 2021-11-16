@@ -28,8 +28,9 @@ function love.load(arg)
     opc = nil
     mopc = nil
     hopc = nil
-    connected = true
-    isCurrentPlayer = true
+    connected = false
+    isCurrentPlayer = false
+    event = nil
     --[[_jogo = goUnPack(goPack(jogo))
     print(_jogo.x, _jogo.y, _jogo.tamanho, _jogo.jogador, _jogo.jogada, _jogo.venceu, _jogo.quadrado[1][1],
         _jogo.quadrado[1][2], _jogo.quadrado[1][3], _jogo.quadrado[2][1], _jogo.quadrado[2][2], _jogo.quadrado[2][3],
@@ -186,6 +187,7 @@ function love.mousepressed(x, y, botao, toque, repeticao)
             end
         elseif mopc == 2 and connected and isCurrentPlayer then
             jogo:mousepressed(x, y, botao, toque, repeticao)
+            
         end
     end
 end
