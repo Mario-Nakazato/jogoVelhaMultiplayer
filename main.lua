@@ -2,7 +2,6 @@ require "palavra"
 require "tabuleiro"
 require "menu"
 require "caixaTexto"
-enet = require "enet"
 
 function love.load(arg)
 
@@ -28,9 +27,12 @@ function love.load(arg)
     opc = nil
     mopc = nil
     hopc = nil
+    enet = require "enet"
+    host = enet.host_create("*:25565")
+    server =nil
+    event = nil
     connected = false
     isCurrentPlayer = false
-    event = nil
     --[[_jogo = goUnPack(goPack(jogo))
     print(_jogo.x, _jogo.y, _jogo.tamanho, _jogo.jogador, _jogo.jogada, _jogo.venceu, _jogo.quadrado[1][1],
         _jogo.quadrado[1][2], _jogo.quadrado[1][3], _jogo.quadrado[2][1], _jogo.quadrado[2][2], _jogo.quadrado[2][3],
@@ -63,11 +65,12 @@ function love.draw()
             elseif hopc == 1 then
                 host = enet.host_create()
                 server = host:connect(ip.texto)
-                server:timeout(1, 5000, 5000)
+                server:timeout(1, 5000, 120000)
                 if connected then
                     jogo:draw()
                 end
-                while mopc == 1 and (connected==false or isCurrentPlayer == false) do
+                -- SE SAIR DO LOOP WHILE EVENT A CONEXAO E FECHADA
+                while mopc == 1 and (connected == false or isCurrentPlayer == false) do
                     event = host:service(100)
                     while event do
                         if event.type == "receive" then
@@ -75,7 +78,7 @@ function love.draw()
                             jogo = goUnPack(event.data)
 
                             -- ALTERA O JOGO
-                           isCurrentPlayer = true
+                            isCurrentPlayer = true
 
                         elseif event.type == "connect" then
                             print(event.peer, "connected.")
@@ -93,13 +96,13 @@ function love.draw()
                 hopc = nil
             end
         elseif mopc == 2 then
-            host = enet.host_create("*:25565")
             if connected == true then
                 jogo:draw()
             end
             while mopc == 2 and (connected == false or isCurrentPlayer == false) do
                 event = host:service(0)
                 while event do
+                    print('DENTRO DO LOOP', event.data,event.peer,event.type)
                     if event.type == "receive" then
                         -- RECEBE O JOGO
                         jogo = goUnPack(event.data)
@@ -187,7 +190,8 @@ function love.mousepressed(x, y, botao, toque, repeticao)
             end
         elseif mopc == 2 and connected and isCurrentPlayer then
             jogo:mousepressed(x, y, botao, toque, repeticao)
-            
+            print(event)
+            --event.peer:send("goPack(jogo)")
         end
     end
 end
