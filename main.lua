@@ -2,13 +2,12 @@ require "palavra"
 require "tabuleiro"
 require "menu"
 require "caixaTexto"
+socket = require "socket"
+udp = socket.udp()
 
-gameObject = {
-    tab = "Ola MUNDO",
-    actPlayer = 'x',
-    num1 = 512,
-    num2 = 420 + 69
-}
+currentPlayer = false
+msg_or_ip = nil
+port_or_nil = nil
 
 function love.load(arg)
 
@@ -39,6 +38,63 @@ end
 function love.update(dt)
 
     ip:update(dt)
+    if mopc == 1 and hopc == 1 then
+        address, port = "localhost", 25565
+        if ip.texto~="" then
+            address= ip.texto
+        end
+        udp:setpeername(address, port)
+        udp:settimeout(0)
+        if playi and playj then
+            udp:send(tostring(playi) .. '-' .. tostring(playj))
+            playi = nil
+            playj = nil
+            currentPlayer = true
+        end
+        data = udp:receive()
+        if data then
+            local p = split(data, '-')
+            playi, playj, currentPlayer, gameStatus = p[1], p[2], p[3], p[4]
+            if playi and playj and currentPlayer then
+                jogo:jogar(tonumber(playi), tonumber(playj))
+                playi = nil
+                playj = nil
+                currentPlayer = false
+            end
+        end
+
+    elseif mopc == 2 then
+        -- TO DO fazer a porta ser dinamica 
+        udp:setsockname('*', 25565)
+        udp:settimeout(0)
+        data, msgOrIp, portOrNil = udp:receivefrom()
+        if portOrNil then
+            port_or_nil = portOrNil
+        end
+        if msgOrIp ~= "timeout" then
+            msg_or_ip = msgOrIp
+        end
+        if data then
+            local p = split(data, '-')
+            playi, playj = p[1], p[2]
+
+            if playi and playj and currentPlayer == false then
+                jogo:jogar(tonumber(playi), tonumber(playj))
+                playi = nil
+                playj = nil
+                currentPlayer = true
+            end
+        end
+
+        if playi and playj and currentPlayer then
+
+            udp:sendto(tostring(playi) .. '-' .. tostring(playj) .. '-' .. tostring(currentPlayer) .. '-' ..
+                           tostring(gameStatus), msg_or_ip, port_or_nil)
+            playi = nil
+            playj = nil
+            currentPlayer = false
+        end
+    end
 
 end
 
@@ -56,94 +112,22 @@ function love.draw()
                 _host:draw()
                 ip:draw()
             elseif hopc == 1 then
-                local enet = require "enet"
-                local host = enet.host_create()
-                local server = host:connect(ip.texto)
-                server:timeout(1, 5000, 5000)
-                while mopc == 1 do
-                    local event = host:service(100)
-                    while event do
-                        if event.type == "receive" then
-                            -- RECEBE O JOGO
-                            gameObject = goUnPack(event.data)
+                jogo:draw()
 
-                            -- PRINT
-                            goPrint(gameObject)
-
-                            -- ALTERA O JOGO
-                            gameObject.num1 = gameObject.num1 + 1
-                            gameObject.num2 = gameObject.num2 + 1
-
-                            -- DEVOLVE O JOGO
-                            event.peer:send(goPack(gameObject))
-
-                        elseif event.type == "connect" then
-                            print(event.peer, "connected.")
-                        elseif event.type == "disconnect" then
-                            print(event.peer, "disconnected.")
-                            mopc = nil
-                            opc = nil
-                        end
-                        event = host:service(100)
-                    end
-                end
             elseif hopc == 2 then
                 mopc = nil
                 hopc = nil
             end
         elseif mopc == 2 then
-            local enet = require "enet"
-            local host = enet.host_create("*:25565")
-            while mopc == 2 do
-                local event = host:service(0)
-                while event do
-                    if event.type == "receive" then
-                        -- RECEBE O JOGO
-                        gameObject = goUnPack(event.data)
-                        -- PRINT
-                        goPrint(gameObject)
+            jogo:draw()
 
-                        -- ALTERA O JOGO
-                        gameObject.num1 = gameObject.num1 + 1
-                        gameObject.num2 = gameObject.num2 + 1
-
-                        -- DEVOLVE O JOGO
-                        event.peer:send(goPack(gameObject))
-
-                    elseif event.type == "connect" then
-                        print(event.peer, "connected.")
-                        -- COMECA O JOGO
-                        event.peer:send(goPack(gameObject))
-
-                    elseif event.type == "disconnect" then
-                        print(event.peer, "disconnected.")
-                        mopc = nil
-                        opc = nil
-                    end
-                    event = host:service()
-                end
-            end
         elseif mopc == 3 then
             opc = nil
             mopc = nil
         end
     end
 end
-function goPack(go)
-    local data = love.data
-                     .pack("string", "ssnn", gameObject.tab, gameObject.actPlayer, gameObject.num1, gameObject.num2)
-    return data
-end
-function goUnPack(data)
-    local go = {tab, actPlayer, num1, num2}
-    go.tab, go.actPlayer, go.num1, go.num2 = love.data.unpack("ssnn", data, 1)
-    return go
-end
-function goPrint(go)
-    for k, v in pairs(go) do
-        print(v)
-    end
-end
+
 function love.keypressed(tecla, cod, repeticao)
 
     if tecla == "f5" then
@@ -165,7 +149,6 @@ function love.textinput(texto)
 end
 
 function love.mousepressed(x, y, botao, toque, repeticao)
-
     if opc == nil then
         opc = _menu:mousepressed(x, y, botao, toque, repeticao)
     elseif opc == 1 then
@@ -178,9 +161,24 @@ function love.mousepressed(x, y, botao, toque, repeticao)
                 ip:mousepressed(x, y, botao, toque, repeticao)
                 hopc = _host:mousepressed(x, y, botao, toque, repeticao)
             elseif hopc == 1 then
+                if currentPlayer == false then
+                    playi, playj = jogo:mousepressed(x, y, botao, toque, repeticao)
+                end
+            end
+        elseif mopc == 2 then
+            if currentPlayer then
+                playi, playj, gameStatus = jogo:mousepressed(x, y, botao, toque, repeticao)
             end
         end
     end
+end
+
+function split(s, delimiter)
+    result = {}
+    for match in (s .. delimiter):gmatch("(.-)" .. delimiter) do
+        table.insert(result, match)
+    end
+    return result
 end
 
 function love.mousereleased(x, y, botao, toque, repeticao)

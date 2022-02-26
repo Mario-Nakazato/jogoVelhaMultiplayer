@@ -4,9 +4,7 @@
 
     # .
 
---]]
-
-require "palavra"
+--]] require "palavra"
 
 local function novo(x, y, tamanho, jogador)
 
@@ -20,12 +18,12 @@ local function novo(x, y, tamanho, jogador)
         quadrado = {
             [1] = {"", "", ""},
             [2] = {"", "", ""},
-            [3] = {"", "", ""},
+            [3] = {"", "", ""}
         }
     }
 
     tabuleiro.fonte = lgrafico.newFont(tabuleiro.tamanho)
-    
+
     function tabuleiro:load()
     end
 
@@ -34,14 +32,15 @@ local function novo(x, y, tamanho, jogador)
 
     function tabuleiro:draw()
 
-        lgrafico.setLineWidth(self.tamanho /32)
-        lgrafico.line(self.x, self.y +self.tamanho, self.x +self.tamanho *3, self.y +self.tamanho)
-        lgrafico.line(self.x, self.y +self.tamanho *2, self.x +self.tamanho *3, self.y +self.tamanho *2)
-        lgrafico.line(self.x +self.tamanho, self.y, self.x +self.tamanho, self.y +self.tamanho *3)
-        lgrafico.line(self.x +self.tamanho *2, self.y, self.x +self.tamanho *2, self.y +self.tamanho *3)
+        lgrafico.setLineWidth(self.tamanho / 32)
+        lgrafico.line(self.x, self.y + self.tamanho, self.x + self.tamanho * 3, self.y + self.tamanho)
+        lgrafico.line(self.x, self.y + self.tamanho * 2, self.x + self.tamanho * 3, self.y + self.tamanho * 2)
+        lgrafico.line(self.x + self.tamanho, self.y, self.x + self.tamanho, self.y + self.tamanho * 3)
+        lgrafico.line(self.x + self.tamanho * 2, self.y, self.x + self.tamanho * 2, self.y + self.tamanho * 3)
         for i = 0, 2 do
             for j = 0, 2 do
-                lgrafico.print(self.quadrado[i +1][j +1], self.fonte, self.x +self.tamanho *j +self.tamanho /8, self.y +self.tamanho *i -self.tamanho /16)
+                lgrafico.print(self.quadrado[i + 1][j + 1], self.fonte, self.x + self.tamanho * j + self.tamanho / 8,
+                    self.y + self.tamanho * i - self.tamanho / 16)
             end
         end
         --[[
@@ -55,19 +54,19 @@ local function novo(x, y, tamanho, jogador)
             end
             
             lgrafico.print("Bruno O", lgrafico.newFont(32), self.x +self.tamanho *2 -self.tamanho /8, self.y -self.tamanho +self.tamanho /16)
-        ]]--
+        ]] --
 
     end
 
     function tabuleiro:jogar(i, j, p)
 
         if i and j and self.jogada > 0 and self.quadrado[i][j] == "" then
-            self.jogada = self.jogada -1
+            self.jogada = self.jogada - 1
             self.quadrado[i][j] = p or self.jogador
             self.jogador = self.jogador == "X" and "O" or "X"
         end
 
-        return self:checar()
+        return i, j, self:checar()
 
     end
 
@@ -75,8 +74,8 @@ local function novo(x, y, tamanho, jogador)
 
         for j = 1, 3 do
             for i = 1, 3 do
-                if self.x +self.tamanho *(j -1) < x and self.x +self.tamanho *j > x then
-                    if self.y +self.tamanho *(i -1) < y and self.y +self.tamanho *i > y then
+                if self.x + self.tamanho * (j - 1) < x and self.x + self.tamanho * j > x then
+                    if self.y + self.tamanho * (i - 1) < y and self.y + self.tamanho * i > y then
                         return i, j
                     end
                 end
@@ -87,22 +86,26 @@ local function novo(x, y, tamanho, jogador)
 
     function tabuleiro:checar()
 
-        --self.venceu = nil
+        -- self.venceu = nil
 
-        for i = 1, 3 do-- Horizontal e Vertical
-            if self.quadrado[i][1] ~= "" and self.quadrado[i][1] == self.quadrado[i][2] and self.quadrado[i][1] == self.quadrado[i][3] then
+        for i = 1, 3 do -- Horizontal e Vertical
+            if self.quadrado[i][1] ~= "" and self.quadrado[i][1] == self.quadrado[i][2] and self.quadrado[i][1] ==
+                self.quadrado[i][3] then
                 self.venceu = self.quadrado[i][1]
                 break
-            elseif self.quadrado[1][i] ~= "" and self.quadrado[1][i] == self.quadrado[2][i] and self.quadrado[1][i] == self.quadrado[3][i] then
+            elseif self.quadrado[1][i] ~= "" and self.quadrado[1][i] == self.quadrado[2][i] and self.quadrado[1][i] ==
+                self.quadrado[3][i] then
                 self.venceu = self.quadrado[1][i]
                 break
             end
         end
 
         -- Diagonal
-        if self.quadrado[1][1] ~= "" and self.quadrado[1][1] == self.quadrado[2][2] and self.quadrado[1][1] == self.quadrado[3][3] then
+        if self.quadrado[1][1] ~= "" and self.quadrado[1][1] == self.quadrado[2][2] and self.quadrado[1][1] ==
+            self.quadrado[3][3] then
             self.venceu = self.quadrado[1][1];
-        elseif self.quadrado[3][1] ~= "" and self.quadrado[3][1] == self.quadrado[2][2] and self.quadrado[3][1] == self.quadrado[1][3] then
+        elseif self.quadrado[3][1] ~= "" and self.quadrado[3][1] == self.quadrado[2][2] and self.quadrado[3][1] ==
+            self.quadrado[1][3] then
             self.venceu = self.quadrado[3][1];
         end
 
@@ -119,9 +122,9 @@ local function novo(x, y, tamanho, jogador)
     end
 
     function tabuleiro:mousepressed(x, y, botao, toque, repeticao)
-        
+        --print(x,y,botao,toque,repeticao)
         if self.jogada > 0 then
-            --p = botao == 1 and "X" or botao == 2 and "O" or ""
+            -- p = botao == 1 and "X" or botao == 2 and "O" or ""
             i, j = self:selecionar(x, y)
         end
 
@@ -138,5 +141,5 @@ tabuleiro = {
 }
 
 print("tabuleiro.lua")
-  
+
 return tabuleiro
