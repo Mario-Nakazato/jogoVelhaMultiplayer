@@ -1,7 +1,7 @@
-require "palavra"
-require "tabuleiro"
-require "menu"
-require "caixaTexto"
+require "/src/palavra"
+require "/src/tabuleiro"
+require "/src/menu"
+require "/src/caixaTexto"
 socket = require "socket"
 udp = socket.udp()
 
@@ -9,8 +9,15 @@ currentPlayer = false
 msg_or_ip = nil
 port_or_nil = nil
 
-function love.load(arg)
+function split(s, delimiter)
+    result = {}
+    for match in (s .. delimiter):gmatch("(.-)" .. delimiter) do
+        table.insert(result, match)
+    end
+    return result
+end
 
+function love.load(arg, unfilteredArg)
     if arg[#arg] == "-debug" then
         require("mobdebug").start()
     end -- Debug para ZeroBrane Studio IDE Utilize; Argumento - arg esta disponivel global.
@@ -36,12 +43,11 @@ function love.load(arg)
 end
 
 function love.update(dt)
-
     ip:update(dt)
     if mopc == 1 and hopc == 1 then
         address, port = "localhost", 25565
-        if ip.texto~="" then
-            address= ip.texto
+        if ip.texto ~= "" then
+            address = ip.texto
         end
         udp:setpeername(address, port)
         udp:settimeout(0)
@@ -62,9 +68,8 @@ function love.update(dt)
                 currentPlayer = false
             end
         end
-
     elseif mopc == 2 then
-        -- TO DO fazer a porta ser dinamica 
+        -- TO DO fazer a porta ser dinamica
         udp:setsockname('*', 25565)
         udp:settimeout(0)
         data, msgOrIp, portOrNil = udp:receivefrom()
@@ -87,19 +92,16 @@ function love.update(dt)
         end
 
         if playi and playj and currentPlayer then
-
             udp:sendto(tostring(playi) .. '-' .. tostring(playj) .. '-' .. tostring(currentPlayer) .. '-' ..
-                           tostring(gameStatus), msg_or_ip, port_or_nil)
+                tostring(gameStatus), msg_or_ip, port_or_nil)
             playi = nil
             playj = nil
             currentPlayer = false
         end
     end
-
 end
 
 function love.draw()
-
     if opc == nil then
         _menu:draw()
     elseif opc == 1 then
@@ -113,14 +115,12 @@ function love.draw()
                 ip:draw()
             elseif hopc == 1 then
                 jogo:draw()
-
             elseif hopc == 2 then
                 mopc = nil
                 hopc = nil
             end
         elseif mopc == 2 then
             jogo:draw()
-
         elseif mopc == 3 then
             opc = nil
             mopc = nil
@@ -128,178 +128,113 @@ function love.draw()
     end
 end
 
-function love.keypressed(tecla, cod, repeticao)
-
-    if tecla == "f5" then
+function love.keypressed(key, scancode, isrepeat)
+    if key == "f5" then
         love.load(arg)
     end
 
-    ip:keypressed(tecla, cod, repeticao)
-
+    ip:keypressed(key, scancode, isrepeat)
 end
 
-function love.keyreleased(tecla, cod)
-
+function love.keyreleased(key, scancode)
 end
 
-function love.textinput(texto)
-
-    ip:textinput(texto)
-
-end
-
-function love.mousepressed(x, y, botao, toque, repeticao)
+function love.mousepressed(x, y, button, istouch, presses)
     if opc == nil then
-        opc = _menu:mousepressed(x, y, botao, toque, repeticao)
+        opc = _menu:mousepressed(x, y, button, istouch, presses)
     elseif opc == 1 then
-        jogo:mousepressed(x, y, botao, toque, repeticao)
+        jogo:mousepressed(x, y, button, istouch, presses)
     elseif opc == 2 then
         if mopc == nil then
-            mopc = _multi:mousepressed(x, y, botao, toque, repeticao)
+            mopc = _multi:mousepressed(x, y, button, istouch, presses)
         elseif mopc == 1 then
             if hopc == nil then
-                ip:mousepressed(x, y, botao, toque, repeticao)
-                hopc = _host:mousepressed(x, y, botao, toque, repeticao)
+                ip:mousepressed(x, y, button, istouch, presses)
+                hopc = _host:mousepressed(x, y, button, istouch, presses)
             elseif hopc == 1 then
                 if currentPlayer == false then
-                    playi, playj = jogo:mousepressed(x, y, botao, toque, repeticao)
+                    playi, playj = jogo:mousepressed(x, y, button, istouch, presses)
                 end
             end
         elseif mopc == 2 then
             if currentPlayer then
-                playi, playj, gameStatus = jogo:mousepressed(x, y, botao, toque, repeticao)
+                playi, playj, gameStatus = jogo:mousepressed(x, y, button, istouch, presses)
             end
         end
     end
 end
 
-function split(s, delimiter)
-    result = {}
-    for match in (s .. delimiter):gmatch("(.-)" .. delimiter) do
-        table.insert(result, match)
-    end
-    return result
+function love.mousereleased(x, y, button, istouch, presses)
 end
 
-function love.mousereleased(x, y, botao, toque, repeticao)
-
-end
-
-function love.mousemoved(x, y, dx, dy, toque)
-
+function love.mousemoved(x, y, dx, dy, istouch)
 end
 
 function love.wheelmoved(x, y)
-
 end
 
-function love.mousefocus(foco)
-
+function love.mousefocus(focus)
 end
 
-function love.resize(c, l)
-
+function love.resize(w, h)
 end
 
-function love.focus(foco)
-
+function love.focus(focus)
 end
 
 function love.quit()
-
 end
+
+function love.touchpressed(id, x, y, dx, dy, pressure)
+end
+
+function love.touchreleased(id, x, y, dx, dy, pressure)
+end
+
+function love.touchmoved(id, x, y, dx, dy, pressure)
+end
+
+function love.displayrotated(index, orientation)
+end
+
+function love.textedited(text, start, length)
+end
+
+function love.textinput(text)
+    ip:textinput(text)
+end
+
 --[[
-function inicioContato(a, b, contato)
-
-
-
+function love.directorydropped(path)
 end
 
-function fimContato(a, b, contato)
-
-
-
+function love.filedropped(file)
 end
 
-function preContato(a, b, contato)
-
-
-
-end
-
---function posContato(a, b, contato, normalImpulso, tangenteImpulso, normalImpulso1, tangenteImpulso1)
-function posContato(a, b, contato, normalImpulso, tangenteImpulso)
-
-
-
-end
-
-function love.touchpressed(id, x, y, dx, dy, pressao)
-
-
-
-end
-
-function love.touchreleased(id, x, y, dx, dy, pressao)
-
-
-
-end
-
-function love.touchmoved(id, x, y, dx, dy, pressao)
-
-
-
-end
-
-function love.displayrotated(indice, orientacao)
-
-
-
-end
-
-function love.textedited(texto, inicio, tamanho)
-
-
-
-end
-
-function love.textinput(texto)--
-
-
-
-end
-
-function love.directorydropped(caminho)
-
-
-
-end
-
-function love.filedropped(arquivo)
-
-
-
-end
-
-function love.errorhandler(erro)
-
-
-
+function love.errorhandler(msg)
 end
 
 function love.lowmemory()
-
-
-
 end
 
-function love.threaderror(thread, erro)
-
-
-
+function love.threaderror(thread, errorstr)
 end
 
-function love.visible(visivel)-- Esta funcao CallBack não funciona, utilize visivel = love.window.isMinimized()
+function love.visible(visible)-- Esta funcao CallBack não funciona, utilize visivel = love.window.isMinimized()
 end
+
+--love.physics world callbacks
+function beginContact(a, b, coll)
+end
+
+function endContact(a, b, coll)
+end
+
+function preSolve(a, b, coll)
+end
+
+--postSolve(fixture1, fixture2, contact, normal_impulse1, tangent_impulse1, normal_impulse2, tangent_impulse2)
+function postSolve(a, b, coll, normalimpulse, tangentimpulse)
+end
+--love.physics world callbacks
 --]]

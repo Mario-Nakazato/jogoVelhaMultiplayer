@@ -6,9 +6,9 @@
 [wiki]:https://pt.wikipedia.org/wiki/Jogo_da_velha
 [love2d]:https://love2d.org/
 
-![](jogoVelhaMenuPrincipal.png)
-![](jogoVelhaBeta.png)
-![](jogoVelhaMenuMultiplayer.png)
-![](jogoVelhaMenuConectar.png)
+![](readme/jogoVelhaMenuPrincipal.png)
+![](readme/jogoVelhaBeta.png)
+![](readme/jogoVelhaMenuMultiplayer.png)
+![](readme/jogoVelhaMenuConectar.png)
 
 #### ...
