@@ -27,7 +27,7 @@ local function new()
     end
 
     function menu:load(any)
-        logo = love.graphics.newImage('/src/Logo.png')
+        logo = love.graphics.newImage('/src/imagens/Logo.png')
         button_location = {}
         TYPE = any
         if any == 'main' then

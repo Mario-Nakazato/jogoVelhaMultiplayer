@@ -1,4 +1,5 @@
 require "/src/palavra"
+require "/src/utils/tools"
 require "/src/tabuleiro"
 require "/src/menu"
 require "/src/caixaTexto"
@@ -8,14 +9,6 @@ udp = socket.udp()
 currentPlayer = false
 msg_or_ip = nil
 port_or_nil = nil
-
-function split(s, delimiter)
-    result = {}
-    for match in (s .. delimiter):gmatch("(.-)" .. delimiter) do
-        table.insert(result, match)
-    end
-    return result
-end
 
 function love.load(arg, unfilteredArg)
     if arg[#arg] == "-debug" then
